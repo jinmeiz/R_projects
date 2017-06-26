@@ -64,17 +64,25 @@ combi$FamilyID[combi$FamilyID %in% famIDs$Var1] <- 'Small'
 combi$FamilyID <- factor(combi$FamilyID)
 
 # split the data in combi back to train and test data
-train_new <- combi[1:891,]
-test_new <- combi[892:1309,]
+train <- combi[1:891,]
+test <- combi[892:1309,]
 # test factor
 table(combi$FamilyID)
-table(combi$train_new)
-table(combi$test_new)
+table(combi$train)
+table(combi$test)
 
 # generate survival information
 fit <- rpart(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked + Title + FamilySize + FamilyID,
-             data=train_new,
+             data=train,
              method="class")
 # plot the decision tree
 # plot(fit) # text(fit)
 rpart.plot(fit)
+
+# generate survival vector for test data using prediction in fit 
+Survived <- predict(fit, test, type = "class")
+
+# generate csv file which contains passeger Ids and survived data
+submit <- data.frame(PassengerId = test$PassengerId, Survived)
+write.csv(submit, file = "featureengineer.csv", row.names = FALSE)
+
